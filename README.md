@@ -1,4 +1,4 @@
-# TaskFlow AG — Premium Full Stack Task Management System
+# TaskFlow — Premium Full Stack Task Management System
 
 [![Node.js](https://img.shields.io/badge/Node.js-20.x-339933?style=flat-square&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![Express.js](https://img.shields.io/badge/Express.js-4.x-000000?style=flat-square&logo=express&logoColor=white)](https://expressjs.com/)
