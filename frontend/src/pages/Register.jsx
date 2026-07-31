@@ -22,6 +22,8 @@ const Register = () => {
     if (password.length >= 8 && /[A-Z]/.test(password)) score += 1;
     if (/[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password)) score += 1;
 
+    if (score === 0)
+      return { level: 1, label: 'Too short', color: 'var(--color-danger)' };
     if (score === 1)
       return { level: 1, label: 'Weak', color: 'var(--color-danger)' };
     if (score === 2)
@@ -31,6 +33,18 @@ const Register = () => {
 
   const strength = getPasswordStrength();
 
+  // Email format validation helper
+  const isValidEmail = (value) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  };
+
+  // Real-time email status (computed every render)
+  const emailStatus = (() => {
+    if (!email) return { valid: null, message: '' };
+    if (isValidEmail(email.trim())) return { valid: true, message: 'Valid email format' };
+    return { valid: false, message: 'Enter a valid email (e.g. name@example.com)' };
+  })();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -38,6 +52,11 @@ const Register = () => {
     // Client-side validation
     if (!name.trim() || !email.trim() || !password) {
       setError('Please fill in all fields.');
+      return;
+    }
+
+    if (!isValidEmail(email.trim())) {
+      setError('Please enter a valid email address (e.g. name@example.com).');
       return;
     }
 
@@ -52,10 +71,14 @@ const Register = () => {
       await register(name.trim(), email.trim(), password);
       navigate('/dashboard');
     } catch (err) {
-      const message =
-        err.response && err.response.data && err.response.data.message
-          ? err.response.data.message
-          : 'Registration failed. Please try again.';
+      let message;
+      if (!err.response) {
+        message = 'Cannot connect to the server. Make sure the backend is running (npm run dev) and MongoDB is connected.';
+      } else if (err.response.data && err.response.data.message) {
+        message = err.response.data.message;
+      } else {
+        message = 'Registration failed. Please try again.';
+      }
       setError(message);
     } finally {
       setLoading(false);
@@ -148,7 +171,15 @@ const Register = () => {
                 id="register-email"
                 type="email"
                 className="form-input"
-                style={{ paddingLeft: '2.5rem' }}
+                style={{
+                  paddingLeft: '2.5rem',
+                  borderColor:
+                    email && emailStatus.valid === false
+                      ? 'var(--color-danger)'
+                      : email && emailStatus.valid === true
+                      ? 'var(--color-success)'
+                      : undefined,
+                }}
                 placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -166,6 +197,21 @@ const Register = () => {
                 }}
               />
             </div>
+            {/* Real-time email validation indicator */}
+            {email && (
+              <div
+                style={{
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  marginTop: '0.3rem',
+                  color: emailStatus.valid
+                    ? 'var(--color-success)'
+                    : 'var(--color-danger)',
+                }}
+              >
+                {emailStatus.message}
+              </div>
+            )}
           </div>
 
           <div className="form-group">
