@@ -114,26 +114,6 @@ const Navbar = () => {
               <ListTodo size={18} />
               <span className="hide-on-mobile">My Tasks</span>
             </Link>
-
-            <Link
-              to="/profile"
-              className={`btn btn-ghost btn-sm ${
-                location.pathname === '/profile' ? 'active-nav' : ''
-              }`}
-              style={{
-                background:
-                  location.pathname === '/profile'
-                    ? 'var(--bg-tertiary)'
-                    : 'transparent',
-                color:
-                  location.pathname === '/profile'
-                    ? 'var(--color-primary)'
-                    : 'var(--text-secondary)',
-              }}
-            >
-              <UserIcon size={18} />
-              <span className="hide-on-mobile">Profile</span>
-            </Link>
           </nav>
         )}
 
