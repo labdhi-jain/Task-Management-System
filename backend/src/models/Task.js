@@ -44,6 +44,11 @@ const taskSchema = new mongoose.Schema(
       required: [true, 'Due date is required'],
       index: true,
     },
+    dueTime: {
+      type: String,
+      trim: true,
+      default: '',
+    },
   },
   {
     timestamps: true,
