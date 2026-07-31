@@ -5,10 +5,13 @@ const connectDB = async () => {
     const uri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/task_management_db';
 
     // Use TLS options only for Atlas (mongodb+srv) connections
-    const options = {};
+    const options = {
+      family: 4, // Force IPv4 (fixes Windows Node.js SSL alert number 80 with Atlas free tier)
+    };
     if (uri.startsWith('mongodb+srv')) {
       options.tls = true;
       options.tlsAllowInvalidCertificates = true;
+      options.serverSelectionTimeoutMS = 10000;
     }
 
     const conn = await mongoose.connect(uri, options);
