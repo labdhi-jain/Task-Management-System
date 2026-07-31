@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import Alert from '../components/Alert';
+import TaskModal from '../components/TaskModal';
 import {
   CheckSquare,
   CheckCircle2,
@@ -17,6 +18,7 @@ import {
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [stats, setStats] = useState({
     totalTasks: 0,
     completedTasks: 0,
@@ -31,6 +33,11 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+
+  const handleSaveTask = async (taskData) => {
+    await api.post('/tasks', taskData);
+    fetchStats();
+  };
 
   const fetchStats = async () => {
     try {
@@ -98,7 +105,7 @@ const Dashboard = () => {
             Productivity Overview
           </div>
           <h1 style={{ fontSize: '2.2rem', marginBottom: '0.5rem' }}>
-            Welcome back, {user ? user.name : 'User'}! 👋
+            Welcome, {user ? user.name : 'User'}! 👋
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', maxWidth: '600px' }}>
             Here is a real-time overview of your task list, progress, and priority items today.
@@ -107,21 +114,6 @@ const Dashboard = () => {
 
         {/* Action Buttons */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <button
-            onClick={handleRefresh}
-            className="btn btn-secondary btn-sm"
-            title="Refresh statistics"
-            disabled={refreshing}
-          >
-            <RefreshCw
-              size={16}
-              style={{
-                animation: refreshing ? 'spin 1s linear infinite' : 'none',
-              }}
-            />
-            <span>Refresh</span>
-          </button>
-
           <Link to="/tasks" className="btn btn-primary">
             <span>Manage Tasks</span>
             <ArrowRight size={18} />
@@ -563,13 +555,30 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <Link to="/tasks" className="btn btn-primary">
-              <span>Open Tasks</span>
-              <ArrowRight size={16} />
-            </Link>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => setIsTaskModalOpen(true)}
+                className="btn btn-primary"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
+              >
+                <PlusCircle size={16} />
+                <span>Add Task</span>
+              </button>
+              <Link to="/tasks" className="btn btn-secondary">
+                <span>Open Tasks</span>
+                <ArrowRight size={16} />
+              </Link>
+            </div>
           </div>
         </div>
       </div>
+
+      <TaskModal
+        isOpen={isTaskModalOpen}
+        onClose={() => setIsTaskModalOpen(false)}
+        onSave={handleSaveTask}
+        taskToEdit={null}
+      />
     </div>
   );
 };
