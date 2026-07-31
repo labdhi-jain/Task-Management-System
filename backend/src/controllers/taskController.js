@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 // @access  Private
 const createTask = async (req, res, next) => {
   try {
-    const { title, description, priority, status, dueDate } = req.body;
+    const { title, description, priority, status, dueDate, dueTime } = req.body;
 
     if (!title || !dueDate) {
       return res.status(400).json({
@@ -22,6 +22,7 @@ const createTask = async (req, res, next) => {
       priority: priority || 'Medium',
       status: status || 'Pending',
       dueDate,
+      dueTime: dueTime || '',
     });
 
     res.status(201).json({
@@ -238,13 +239,14 @@ const updateTask = async (req, res, next) => {
     }
 
     // Update task fields safely
-    const { title, description, priority, status, dueDate } = req.body;
+    const { title, description, priority, status, dueDate, dueTime } = req.body;
 
     task.title = title !== undefined ? title : task.title;
     task.description = description !== undefined ? description : task.description;
     task.priority = priority !== undefined ? priority : task.priority;
     task.status = status !== undefined ? status : task.status;
     task.dueDate = dueDate !== undefined ? dueDate : task.dueDate;
+    task.dueTime = dueTime !== undefined ? dueTime : task.dueTime;
 
     const updatedTask = await task.save();
 
