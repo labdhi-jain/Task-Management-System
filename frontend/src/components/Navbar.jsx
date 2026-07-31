@@ -63,7 +63,7 @@ const Navbar = () => {
             size={26}
             style={{ color: 'var(--color-primary)' }}
           />
-          <span>TaskFlow AG</span>
+          <span>TaskFlow</span>
         </Link>
 
         {/* Navigation Links (Visible when logged in) */}
@@ -114,6 +114,26 @@ const Navbar = () => {
               <ListTodo size={18} />
               <span className="hide-on-mobile">My Tasks</span>
             </Link>
+
+            <Link
+              to="/profile"
+              className={`btn btn-ghost btn-sm ${
+                location.pathname === '/profile' ? 'active-nav' : ''
+              }`}
+              style={{
+                background:
+                  location.pathname === '/profile'
+                    ? 'var(--bg-tertiary)'
+                    : 'transparent',
+                color:
+                  location.pathname === '/profile'
+                    ? 'var(--color-primary)'
+                    : 'var(--text-secondary)',
+              }}
+            >
+              <UserIcon size={18} />
+              <span className="hide-on-mobile">Profile</span>
+            </Link>
           </nav>
         )}
 
@@ -135,7 +155,8 @@ const Navbar = () => {
 
           {user ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <div
+              <Link
+                to="/profile"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -143,7 +164,12 @@ const Navbar = () => {
                   fontSize: '0.9rem',
                   fontWeight: 600,
                   color: 'var(--text-primary)',
+                  textDecoration: 'none',
+                  padding: '0.25rem 0.6rem',
+                  borderRadius: 'var(--radius-full)',
+                  background: location.pathname === '/profile' ? 'var(--bg-tertiary)' : 'transparent',
                 }}
+                title="View & Edit Profile"
               >
                 <div
                   style={{
@@ -161,7 +187,7 @@ const Navbar = () => {
                   {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                 </div>
                 <span className="hide-on-mobile">{user.name}</span>
-              </div>
+              </Link>
 
               <button
                 onClick={handleLogout}
