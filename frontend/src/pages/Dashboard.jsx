@@ -363,6 +363,103 @@ const Dashboard = () => {
         </div>
       </div>
 
+      {/* Live Productivity Pulse */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gap: '1.5rem',
+          marginBottom: '2.5rem',
+        }}
+      >
+        {/* Live Productivity Pulse Widget */}
+        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
+              <Activity size={20} style={{ color: 'var(--color-success)' }} />
+              <h2 style={{ fontSize: '1.25rem' }}>Live Productivity Pulse</h2>
+            </div>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+              Real-time progress score calculated from your workspace completion ratio.
+            </p>
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1.5rem',
+              margin: '1rem 0',
+              flexWrap: 'wrap',
+            }}
+          >
+            <div
+              style={{
+                width: '92px',
+                height: '92px',
+                borderRadius: '50%',
+                background: `conic-gradient(var(--color-success) ${
+                  stats.totalTasks > 0 ? (stats.completedTasks / stats.totalTasks) * 360 : 0
+                }deg, var(--bg-secondary) 0deg)`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative',
+                boxShadow: '0 0 20px rgba(16, 185, 129, 0.2)',
+              }}
+            >
+              <div
+                style={{
+                  width: '74px',
+                  height: '74px',
+                  borderRadius: '50%',
+                  background: 'var(--bg-glass)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '1.4rem',
+                  fontWeight: 800,
+                  color: 'var(--text-primary)',
+                }}
+              >
+                {stats.totalTasks > 0 ? Math.round((stats.completedTasks / stats.totalTasks) * 100) : 0}%
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem' }}>
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--color-success)' }} />
+                <span><strong>{stats.completedTasks}</strong> Completed Tasks</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem' }}>
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--color-primary)' }} />
+                <span><strong>{stats.pendingTasks + stats.inProgressTasks}</strong> Active Workspace Items</span>
+              </div>
+
+              <div
+                style={{
+                  marginTop: '0.5rem',
+                  padding: '0.4rem 0.75rem',
+                  borderRadius: 'var(--radius-full)',
+                  background: 'var(--bg-secondary)',
+                  border: '1px solid var(--bg-glass-border)',
+                  fontSize: '0.75rem',
+                  color: 'var(--color-success)',
+                  fontWeight: 600,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  width: 'fit-content',
+                }}
+              >
+                <CheckCircle2 size={13} />
+                <span>Live Signal: Active pace</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Analytics Breakdown & Quick Links Grid */}
       <div
         style={{
