@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 
 const connectDB = async () => {
+  if (mongoose.connection.readyState >= 1) {
+    return mongoose.connection;
+  }
   try {
     const uri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/task_management_db';
 
