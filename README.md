@@ -1,5 +1,6 @@
 # TaskFlow — Premium Full Stack Task Management System
 
+[![Live App](https://img.shields.io/badge/Vercel-Deployed-000000?style=flat-square&logo=vercel&logoColor=white)](https://task-flow-rouge-xi.vercel.app)
 [![Node.js](https://img.shields.io/badge/Node.js-20.x-339933?style=flat-square&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![Express.js](https://img.shields.io/badge/Express.js-4.x-000000?style=flat-square&logo=express&logoColor=white)](https://expressjs.com/)
 [![React](https://img.shields.io/badge/React-18.x-61DAFB?style=flat-square&logo=react&logoColor=black)](https://reactjs.org/)
@@ -7,31 +8,36 @@
 [![MongoDB](https://img.shields.io/badge/MongoDB-6.x-47A248?style=flat-square&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
 [![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
 
-A stunning, state-of-the-art **Full Stack Task Management System** designed and built for software engineering internship assessments. The application features stateless **JWT authentication with automatic refresh token rotation**, **user data isolation**, full **CRUD operations**, **case-insensitive search**, **multi-dimensional filtering**, **due-date sorting**, **pagination**, a **real-time productivity dashboard**, and an ultra-premium **Vanilla CSS design system** with a persistent **Dark / Light Mode toggle**.
+🔗 **Live Production Application**: [https://task-flow-rouge-xi.vercel.app](https://task-flow-rouge-xi.vercel.app)
+
+A stunning, state-of-the-art **Full Stack Task Management System** designed and built for software engineering assessments. The application features stateless **JWT authentication with automatic refresh token rotation**, **user data isolation**, **DNS email verification**, **profile management**, **task due times**, full **CRUD operations**, **case-insensitive search**, **multi-dimensional filtering**, **due-date sorting**, **pagination**, a **real-time productivity dashboard**, and an ultra-premium **Vanilla CSS design system** with a persistent **Dark / Light Mode toggle**.
 
 ---
 
 ## ✨ Features & Capabilities
 
-### 🔐 1. Authentication & Security (Phase 1 & Phase 4)
+### 🔐 1. Authentication, Security & Account Management
 - **Stateless JWT Authentication**: Issues short-lived Access Tokens (`15m`) and secure Refresh Tokens (`7d`).
-- **Automatic Token Rotation**: Frontend Axios interceptors automatically detect expired tokens (`401 Unauthorized`), request a fresh token via `/api/auth/refresh`, and seamlessly retry the original request.
+- **Automatic Token Rotation**: Frontend Axios interceptors automatically detect expired tokens (`401 Unauthorized`), request a fresh token via `/api/auth/refresh`, and seamlessly retry original requests.
 - **Strict Data Ownership & Isolation**: Every task is bound to its creator (`userId`). Users can never view, edit, or delete another user's tasks (`403 Forbidden`).
+- **Real-time DNS Email Verification**: Server-side MX/A record domain verification prevents registrations with fake/non-existent domains or sequential test spam (`abcdef@...`).
 - **Dynamic Password Strength Meter**: Real-time 3-segment visual progress bar (*Weak*, *Medium*, *Strong*) on the registration form.
+- **User Profile Management**: Dedicated `/profile` route enabling users to update their display name, email address, or change password with instant navbar state sync.
 
-### 📊 2. Real-Time Productivity Dashboard (Phase 4)
+### 📊 2. Real-Time Productivity Dashboard
 - **Personalized Greeting**: Welcomes returning users with their profile name and motivational status.
 - **Interactive Stat Cards**: Live counts for **Total Tasks**, **Completed Tasks** (with completion percentage), **Pending Tasks**, and **In Progress Tasks**.
 - **Priority Breakdown Widget**: Visual horizontal progress bars illustrating the distribution of *High*, *Medium*, and *Low* priority items.
 
-### 📋 3. Tasks Workspace — CRUD, Search, Filter, Sort & Pagination (Phase 2 & Phase 5)
+### 📋 3. Tasks Workspace — CRUD, Search, Filter, Sort & Pagination
 - **Full Task CRUD**: Create, read, update, and delete tasks with required `title` and `dueDate` validation.
+- **Optional Due Time**: Set optional due times alongside due dates (`<input type="time" />`) with formatted 12-hour AM/PM displays on task cards (e.g., `Due: Aug 15, 2026 at 2:30 PM`).
 - **Custom Search & Filtering Bar**:
   - **Title Search**: Case-insensitive regex matching.
   - **Status Filter**: Dropdown for `Pending`, `In Progress`, and `Completed`.
   - **Priority Filter**: Dropdown for `High`, `Medium`, and `Low`.
   - **Due-Date Sorting**: Toggle between `Earliest First` (`asc`) and `Latest First` (`desc`).
-- **Quick Status Toggle Badge (Bonus UX)**: Instantly change any task's status directly from its card badge without opening a modal.
+- **Quick Status Toggle Badge**: Instantly change any task's status directly from its card badge without opening a modal.
 - **Pagination Controls**: Configurable per-page sizes (`5`, `10`, `20`, `50`) with numbered page navigation.
 
 ### 🎨 4. Rich Vanilla CSS Design System (Phase 3)
