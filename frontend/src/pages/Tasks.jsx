@@ -18,6 +18,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ListTodo,
+  RefreshCw,
 } from 'lucide-react';
 
 const Tasks = () => {
@@ -25,6 +26,7 @@ const Tasks = () => {
   const [totalTasks, setTotalTasks] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
+  const [activeTab, setActiveTab] = useState('active'); // 'active', 'completed', 'all'
 
   // Search, Filter, Sort & Pagination state
   const [searchQuery, setSearchQuery] = useState('');
@@ -58,7 +60,11 @@ const Tasks = () => {
           params.search = searchQuery.trim();
         }
 
-        if (statusFilter) {
+        if (activeTab === 'active') {
+          params.status = statusFilter ? statusFilter : 'active';
+        } else if (activeTab === 'completed') {
+          params.status = 'Completed';
+        } else if (statusFilter) {
           params.status = statusFilter;
         }
 
@@ -80,12 +86,12 @@ const Tasks = () => {
         setLoading(false);
       }
     },
-    [currentPage, limit, searchQuery, statusFilter, priorityFilter, sortOrder]
+    [currentPage, limit, searchQuery, statusFilter, priorityFilter, sortOrder, activeTab]
   );
 
   useEffect(() => {
     fetchTasks(1);
-  }, [limit, searchQuery, statusFilter, priorityFilter, sortOrder]);
+  }, [limit, searchQuery, statusFilter, priorityFilter, sortOrder, activeTab]);
 
   // Handle Create / Update Task via Modal
   const handleSaveTask = async (taskData) => {
@@ -115,12 +121,7 @@ const Tasks = () => {
   const handleQuickStatusToggle = async (task, newStatus) => {
     try {
       await api.put(`/tasks/${task._id}`, { status: newStatus });
-      // Optimistically update local state
-      setTasks((prevTasks) =>
-        prevTasks.map((t) =>
-          t._id === task._id ? { ...t, status: newStatus } : t
-        )
-      );
+      fetchTasks(currentPage);
     } catch (err) {
       console.error('Failed to update status:', err);
       setError('Failed to update task status.');
@@ -173,15 +174,90 @@ const Tasks = () => {
           </p>
         </div>
 
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <button
+            onClick={() => fetchTasks(currentPage)}
+            className="btn btn-secondary btn-sm"
+            title="Refresh tasks"
+            disabled={loading}
+          >
+            <RefreshCw
+              size={16}
+              style={{
+                animation: loading ? 'spin 1s linear infinite' : 'none',
+              }}
+            />
+            <span>Refresh</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setTaskToEdit(null);
+              setIsTaskModalOpen(true);
+            }}
+            className="btn btn-primary"
+          >
+            <PlusCircle size={18} />
+            <span>New Task</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Task Workplace Tabs */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          marginBottom: '1.25rem',
+          borderBottom: '1px solid var(--bg-glass-border)',
+          paddingBottom: '0.75rem',
+          flexWrap: 'wrap',
+        }}
+      >
         <button
           onClick={() => {
-            setTaskToEdit(null);
-            setIsTaskModalOpen(true);
+            setActiveTab('active');
+            setStatusFilter('');
+            setCurrentPage(1);
           }}
-          className="btn btn-primary"
+          className={`btn btn-sm ${
+            activeTab === 'active' ? 'btn-primary' : 'btn-ghost'
+          }`}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
         >
-          <PlusCircle size={18} />
-          <span>New Task</span>
+          <Activity size={16} />
+          <span>Active Tasks</span>
+        </button>
+
+        <button
+          onClick={() => {
+            setActiveTab('completed');
+            setStatusFilter('');
+            setCurrentPage(1);
+          }}
+          className={`btn btn-sm ${
+            activeTab === 'completed' ? 'btn-primary' : 'btn-ghost'
+          }`}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
+        >
+          <CheckCircle2 size={16} />
+          <span>Completed Tasks</span>
+        </button>
+
+        <button
+          onClick={() => {
+            setActiveTab('all');
+            setStatusFilter('');
+            setCurrentPage(1);
+          }}
+          className={`btn btn-sm ${
+            activeTab === 'all' ? 'btn-primary' : 'btn-ghost'
+          }`}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
+        >
+          <ListTodo size={16} />
+          <span>All Tasks</span>
         </button>
       </div>
 
@@ -220,29 +296,35 @@ const Tasks = () => {
         </div>
 
         {/* Filter by Status */}
-        <div style={{ position: 'relative' }}>
-          <select
-            className="form-select"
-            style={{ paddingLeft: '2.5rem', height: '42px' }}
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="">All Statuses</option>
-            <option value="Pending">Pending</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Completed">Completed</option>
-          </select>
-          <Filter
-            size={18}
-            style={{
-              position: 'absolute',
-              left: '0.85rem',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              color: 'var(--text-muted)',
-            }}
-          />
-        </div>
+        {activeTab !== 'completed' && (
+          <div style={{ position: 'relative' }}>
+            <select
+              className="form-select"
+              style={{ paddingLeft: '2.5rem', height: '42px' }}
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="">
+                {activeTab === 'active' ? 'All Active Statuses' : 'All Statuses'}
+              </option>
+              <option value="Pending">Pending</option>
+              <option value="In Progress">In Progress</option>
+              {activeTab === 'all' && (
+                <option value="Completed">Completed</option>
+              )}
+            </select>
+            <Filter
+              size={18}
+              style={{
+                position: 'absolute',
+                left: '0.85rem',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: 'var(--text-muted)',
+              }}
+            />
+          </div>
+        )}
 
         {/* Filter by Priority */}
         <div style={{ position: 'relative' }}>
