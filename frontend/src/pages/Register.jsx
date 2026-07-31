@@ -157,7 +157,7 @@ const Register = () => {
             Create an Account
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-            Start organizing your tasks with TaskFlow AG
+            Start organizing your tasks with TaskFlow
           </p>
         </div>
 
