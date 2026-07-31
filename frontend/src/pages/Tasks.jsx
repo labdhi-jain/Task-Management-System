@@ -152,6 +152,20 @@ const Tasks = () => {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
+  // Format time cleanly (24h to 12h AM/PM)
+  const formatTime = (timeString) => {
+    if (!timeString) return '';
+    try {
+      const [hours, minutes] = timeString.split(':');
+      let h = parseInt(hours, 10);
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      return `${h}:${minutes} ${ampm}`;
+    } catch {
+      return timeString;
+    }
+  };
+
   // Status icon helper
   const getStatusIcon = (status) => {
     if (status === 'Completed') return <CheckCircle2 size={16} />;
@@ -567,7 +581,10 @@ const Tasks = () => {
                   }}
                 >
                   <Calendar size={15} />
-                  <span>Due: {formatDate(task.dueDate)}</span>
+                  <span>
+                    Due: {formatDate(task.dueDate)}
+                    {task.dueTime ? ` at ${formatTime(task.dueTime)}` : ''}
+                  </span>
                 </div>
               </div>
 
