@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Calendar, Flag, CheckCircle, AlignLeft, Type, ArrowRight } from 'lucide-react';
+import { X, Calendar, Flag, CheckCircle, AlignLeft, Type, ArrowRight, Clock } from 'lucide-react';
 import Alert from './Alert';
 
 const TaskModal = ({ isOpen, onClose, onSave, taskToEdit = null }) => {
@@ -8,6 +8,7 @@ const TaskModal = ({ isOpen, onClose, onSave, taskToEdit = null }) => {
   const [priority, setPriority] = useState('Medium');
   const [status, setStatus] = useState('Pending');
   const [dueDate, setDueDate] = useState('');
+  const [dueTime, setDueTime] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -17,6 +18,7 @@ const TaskModal = ({ isOpen, onClose, onSave, taskToEdit = null }) => {
       setDescription(taskToEdit.description || '');
       setPriority(taskToEdit.priority || 'Medium');
       setStatus(taskToEdit.status || 'Pending');
+      setDueTime(taskToEdit.dueTime || '');
       // Format due date to YYYY-MM-DD for HTML input[type="date"]
       if (taskToEdit.dueDate) {
         const formattedDate = new Date(taskToEdit.dueDate)
@@ -32,6 +34,7 @@ const TaskModal = ({ isOpen, onClose, onSave, taskToEdit = null }) => {
       setDescription('');
       setPriority('Medium');
       setStatus('Pending');
+      setDueTime('');
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       setDueDate(tomorrow.toISOString().split('T')[0]);
@@ -64,6 +67,7 @@ const TaskModal = ({ isOpen, onClose, onSave, taskToEdit = null }) => {
         priority,
         status,
         dueDate,
+        dueTime: dueTime || '',
       });
       onClose();
     } catch (err) {
@@ -236,31 +240,66 @@ const TaskModal = ({ isOpen, onClose, onSave, taskToEdit = null }) => {
             </div>
           </div>
 
-          <div className="form-group">
-            <label className="form-label" htmlFor="task-due-date">
-              <span>Due Date *</span>
-            </label>
-            <div style={{ position: 'relative' }}>
-              <input
-                id="task-due-date"
-                type="date"
-                className="form-input"
-                style={{ paddingLeft: '2.5rem' }}
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                required
-                disabled={loading}
-              />
-              <Calendar
-                size={18}
-                style={{
-                  position: 'absolute',
-                  left: '0.85rem',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: 'var(--text-muted)',
-                }}
-              />
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '1rem',
+            }}
+          >
+            <div className="form-group">
+              <label className="form-label" htmlFor="task-due-date">
+                <span>Due Date *</span>
+              </label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  id="task-due-date"
+                  type="date"
+                  className="form-input"
+                  style={{ paddingLeft: '2.5rem' }}
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+                <Calendar
+                  size={18}
+                  style={{
+                    position: 'absolute',
+                    left: '0.85rem',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: 'var(--text-muted)',
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label" htmlFor="task-due-time">
+                <span>Due Time (Optional)</span>
+              </label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  id="task-due-time"
+                  type="time"
+                  className="form-input"
+                  style={{ paddingLeft: '2.5rem' }}
+                  value={dueTime}
+                  onChange={(e) => setDueTime(e.target.value)}
+                  disabled={loading}
+                />
+                <Clock
+                  size={18}
+                  style={{
+                    position: 'absolute',
+                    left: '0.85rem',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: 'var(--text-muted)',
+                  }}
+                />
+              </div>
             </div>
           </div>
 
