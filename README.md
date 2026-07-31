@@ -10,6 +10,8 @@
 
 🔗 **Live Production Application**: [https://task-flow-rouge-xi.vercel.app](https://task-flow-rouge-xi.vercel.app)
 
+🔗 **Demo Video**: [https://youtu.be/i1rQs3nK4m0](https://youtu.be/i1rQs3nK4m0)
+
 A stunning, state-of-the-art **Full Stack Task Management System** designed and built for software engineering assessments. The application features stateless **JWT authentication with automatic refresh token rotation**, **user data isolation**, **DNS email verification**, **profile management**, **task due times**, full **CRUD operations**, **case-insensitive search**, **multi-dimensional filtering**, **due-date sorting**, **pagination**, a **real-time productivity dashboard**, and an ultra-premium **Vanilla CSS design system** with a persistent **Dark / Light Mode toggle**.
 
 ---
