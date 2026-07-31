@@ -38,6 +38,7 @@ const Tasks = () => {
   // UI state
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [toastMessage, setToastMessage] = useState('');
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [taskToEdit, setTaskToEdit] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -121,6 +122,12 @@ const Tasks = () => {
   const handleQuickStatusToggle = async (task, newStatus) => {
     try {
       await api.put(`/tasks/${task._id}`, { status: newStatus });
+      if (newStatus === 'Completed') {
+        setToastMessage('🎉 Task marked as Completed! Productivity increased.');
+      } else {
+        setToastMessage(`✨ Task status updated to ${newStatus}.`);
+      }
+      setTimeout(() => setToastMessage(''), 3500);
       fetchTasks(currentPage);
     } catch (err) {
       console.error('Failed to update status:', err);
@@ -739,6 +746,47 @@ const Tasks = () => {
         onDelete={handleDeleteTask}
         taskTitle={taskToDelete ? taskToDelete.title : ''}
       />
+
+      {/* Floating Success / Celebration Toast (Inspired by TalentSpotify's Live Cards) */}
+      {toastMessage && (
+        <div
+          className="animate-fade-in"
+          style={{
+            position: 'fixed',
+            bottom: '2rem',
+            right: '2rem',
+            background: 'var(--bg-secondary)',
+            border: '1px solid var(--color-success)',
+            borderRadius: 'var(--radius-lg)',
+            padding: '1rem 1.25rem',
+            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(16, 185, 129, 0.2)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            zIndex: 9999,
+            maxWidth: '360px',
+          }}
+        >
+          <div
+            style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              background: 'var(--color-success)',
+              color: '#fff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <CheckCircle2 size={18} />
+          </div>
+          <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+            {toastMessage}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
