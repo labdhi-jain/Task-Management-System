@@ -19,19 +19,16 @@ const Footer = () => {
           margin: '0 auto',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
+          justifyContent: 'center',
           flexWrap: 'wrap',
           gap: '1rem',
         }}
       >
         <span>
-          © {new Date().getFullYear()} <strong>TaskFlow AG</strong>. Built for Full Stack Developer Assessment.
+          © {new Date().getFullYear()} <strong>TaskFlow</strong>. Built by <strong>Labdhi Jain</strong>.
+          
         </span>
-        <span style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <span>Vanilla CSS + React 18</span>
-          <span>•</span>
-          <span>MongoDB + Express + JWT</span>
-        </span>
+        
       </div>
     </footer>
   );
