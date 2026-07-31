@@ -32,10 +32,14 @@ const Login = () => {
       await login(email.trim(), password);
       navigate(from, { replace: true });
     } catch (err) {
-      const message =
-        err.response && err.response.data && err.response.data.message
-          ? err.response.data.message
-          : 'Login failed. Please check your credentials.';
+      let message;
+      if (!err.response) {
+        message = 'Cannot connect to the server. Make sure the backend is running (npm run dev) and MongoDB is connected.';
+      } else if (err.response.data && err.response.data.message) {
+        message = err.response.data.message;
+      } else {
+        message = 'Login failed. Please check your credentials.';
+      }
       setError(message);
     } finally {
       setLoading(false);
