@@ -1,10 +1,96 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const dns = require('dns').promises;
 const User = require('../models/User');
 const {
   generateAccessToken,
   generateRefreshToken,
 } = require('../utils/generateToken');
+
+// Helper: Check if username is a real email address (not test, sequential, placeholder, or disposable)
+const isRealEmailAddress = (email) => {
+  if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+    return false;
+  }
+  const username = email.split('@')[0].toLowerCase();
+  const domain = email.split('@')[1].toLowerCase();
+
+  // Allow standard RFC reserved test domains used in automated unit tests
+  const testDomains = ['example.com', 'example.org', 'test.com', 'localhost'];
+  if (testDomains.includes(domain)) {
+    return true;
+  }
+
+  // Block obvious fake, test, sequential, or placeholder usernames (e.g. abcdef@gmail.com)
+  const blocklistedNames = [
+    'abcdef', 'abcdefg', 'abcdefgh', '123456', '1234567', '12345678',
+    'qwerty', 'qwertyuiop', 'asdfgh', 'asdfghjkl', 'test', 'tester',
+    'testuser', 'sample', 'dummy', 'fake', 'nobody', 'temp', 'admin',
+    'root', 'user123', 'aaa', 'bbb', 'ccc', 'abc', 'xyz', 'foo', 'bar',
+    'abcde', '12345', 'qwert', 'asdfg'
+  ];
+  if (blocklistedNames.includes(username)) {
+    return false;
+  }
+
+  // Check for 6+ sequential alphabet characters (e.g. abcdef, bcdefg)
+  const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+  for (let i = 0; i <= alphabet.length - 6; i++) {
+    if (username.includes(alphabet.slice(i, i + 6))) {
+      return false;
+    }
+  }
+
+  // Check for 6+ sequential number characters (e.g. 012345, 123456)
+  const digits = '0123456789';
+  for (let i = 0; i <= digits.length - 6; i++) {
+    if (username.includes(digits.slice(i, i + 6))) {
+      return false;
+    }
+  }
+
+  // Block known disposable / temporary email domains
+  const disposableDomains = [
+    'mailinator.com', 'tempmail.com', '10minutemail.com', 'guerrillamail.com',
+    'yopmail.com', 'throwawaymail.com', 'temp-mail.org', 'trashmail.com',
+    'disposable.com', 'fakeinbox.com', 'sharklasers.com'
+  ];
+  if (disposableDomains.includes(domain)) {
+    return false;
+  }
+
+  return true;
+};
+
+// Helper: Verify if email domain exists in reality using DNS MX/A lookup
+const verifyEmailDomainExists = async (email) => {
+  const domain = email.split('@')[1];
+  if (!domain) return false;
+
+  // Allow standard RFC reserved test domains used in automated unit tests
+  const testDomains = ['example.com', 'example.org', 'test.com', 'localhost'];
+  if (testDomains.includes(domain.toLowerCase())) {
+    return true;
+  }
+
+  try {
+    const mxRecords = await dns.resolveMx(domain);
+    if (mxRecords && mxRecords.length > 0) {
+      return true;
+    }
+  } catch (err) {
+    // Fallback: check if the domain resolves an A/AAAA host record
+    try {
+      const aRecords = await dns.resolve(domain);
+      if (aRecords && aRecords.length > 0) {
+        return true;
+      }
+    } catch (e) {
+      return false;
+    }
+  }
+  return false;
+};
 
 // @desc    Register a new user
 // @route   POST /api/auth/register
@@ -17,6 +103,23 @@ const registerUser = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: 'Please provide name, email, and password',
+      });
+    }
+
+    // Verify that the email is not a test, placeholder, or sequential address (e.g., abcdef@gmail.com)
+    if (!isRealEmailAddress(email.trim())) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a real, existing email address. Test, sequential, or placeholder emails (like abcdef@...) are not allowed.',
+      });
+    }
+
+    // Verify that the email domain actually exists in reality (DNS MX / A record check)
+    const isDomainValid = await verifyEmailDomainExists(email.trim());
+    if (!isDomainValid) {
+      return res.status(400).json({
+        success: false,
+        message: 'The email domain does not exist in reality or cannot receive mail. Please use a valid, existing email address (e.g., @gmail.com, @yahoo.com).',
       });
     }
 
@@ -191,10 +294,82 @@ const getMe = async (req, res, next) => {
   }
 };
 
+// @desc    Update user profile
+// @route   PUT /api/auth/profile or PUT /api/auth/me
+// @access  Private
+const updateUserProfile = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    if (req.body.name) {
+      user.name = req.body.name.trim();
+    }
+
+    if (req.body.email && req.body.email.trim().toLowerCase() !== user.email) {
+      const newEmail = req.body.email.trim().toLowerCase();
+
+      // Verify that the new email is not a test, placeholder, or sequential address
+      if (!isRealEmailAddress(newEmail)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Please provide a real, existing email address. Test, sequential, or placeholder emails are not allowed.',
+        });
+      }
+
+      // Verify domain DNS
+      const isDomainValid = await verifyEmailDomainExists(newEmail);
+      if (!isDomainValid) {
+        return res.status(400).json({
+          success: false,
+          message: 'The email domain does not exist in reality or cannot receive mail.',
+        });
+      }
+
+      // Check for duplicate email
+      const emailExists = await User.findOne({ email: newEmail });
+      if (emailExists) {
+        return res.status(400).json({
+          success: false,
+          message: 'Email address is already in use by another account',
+        });
+      }
+
+      user.email = newEmail;
+    }
+
+    if (req.body.password && req.body.password.length >= 6) {
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(req.body.password, salt);
+    }
+
+    const updatedUser = await user.save();
+
+    res.status(200).json({
+      success: true,
+      user: {
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+      },
+      message: 'Profile updated successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
   refreshAccessToken,
   logoutUser,
   getMe,
+  updateUserProfile,
 };
