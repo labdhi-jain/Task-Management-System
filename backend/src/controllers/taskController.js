@@ -57,7 +57,9 @@ const getTasks = async (req, res, next) => {
     }
 
     // Filter by Status
-    if (status && ['Pending', 'In Progress', 'Completed'].includes(status)) {
+    if (status === 'active' || status === 'Active') {
+      query.status = { $ne: 'Completed' };
+    } else if (status && ['Pending', 'In Progress', 'Completed'].includes(status)) {
       query.status = status;
     }
 
