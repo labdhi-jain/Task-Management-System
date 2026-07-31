@@ -2,7 +2,16 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/task_management_db');
+    const uri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/task_management_db';
+
+    // Use TLS options only for Atlas (mongodb+srv) connections
+    const options = {};
+    if (uri.startsWith('mongodb+srv')) {
+      options.tls = true;
+      options.tlsAllowInvalidCertificates = true;
+    }
+
+    const conn = await mongoose.connect(uri, options);
     console.log(`MongoDB Connected: ${conn.connection.host}`);
     return conn;
   } catch (error) {
