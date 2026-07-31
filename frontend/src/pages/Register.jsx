@@ -33,16 +33,49 @@ const Register = () => {
 
   const strength = getPasswordStrength();
 
-  // Email format validation helper
+  // Comprehensive email format & real-world username validation
   const isValidEmail = (value) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value)) {
+      return false;
+    }
+    const username = value.split('@')[0].toLowerCase();
+
+    // Block obvious fake, test, sequential, or placeholder usernames (e.g. abcdef@gmail.com)
+    const blocklistedNames = [
+      'abcdef', 'abcdefg', 'abcdefgh', '123456', '1234567', '12345678',
+      'qwerty', 'qwertyuiop', 'asdfgh', 'asdfghjkl', 'test', 'tester',
+      'testuser', 'sample', 'dummy', 'fake', 'nobody', 'temp', 'admin',
+      'root', 'user123', 'aaa', 'bbb', 'ccc', 'abc', 'xyz', 'foo', 'bar',
+      'abcde', '12345', 'qwert', 'asdfg'
+    ];
+    if (blocklistedNames.includes(username)) {
+      return false;
+    }
+
+    // Check for 6+ sequential alphabet characters (e.g. abcdef, bcdefg)
+    const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+    for (let i = 0; i <= alphabet.length - 6; i++) {
+      if (username.includes(alphabet.slice(i, i + 6))) {
+        return false;
+      }
+    }
+
+    // Check for 6+ sequential number characters (e.g. 012345, 123456)
+    const digits = '0123456789';
+    for (let i = 0; i <= digits.length - 6; i++) {
+      if (username.includes(digits.slice(i, i + 6))) {
+        return false;
+      }
+    }
+
+    return true;
   };
 
   // Real-time email status (computed every render)
   const emailStatus = (() => {
     if (!email) return { valid: null, message: '' };
     if (isValidEmail(email.trim())) return { valid: true, message: 'Valid email format' };
-    return { valid: false, message: 'Enter a valid email (e.g. name@example.com)' };
+    return { valid: false, message: 'Enter a real email (test/sequential emails like abcdef@... are not allowed)' };
   })();
 
   const handleSubmit = async (e) => {
@@ -56,7 +89,7 @@ const Register = () => {
     }
 
     if (!isValidEmail(email.trim())) {
-      setError('Please enter a valid email address (e.g. name@example.com).');
+      setError('Please enter a valid, existing email address. Test, sequential, or placeholder emails (like abcdef@...) are not allowed.');
       return;
     }
 
