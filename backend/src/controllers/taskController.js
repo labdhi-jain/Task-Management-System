@@ -71,7 +71,17 @@ const getTasks = async (req, res, next) => {
 
     // Sort order computation (asc = 1, desc = -1)
     const sortOrder = order.toLowerCase() === 'desc' ? -1 : 1;
-    const sortOptions = { [sortBy]: sortOrder };
+    
+    // Sort by key first, and use secondary keys for stable, visible sorting when dates are identical
+    const sortOptions = {};
+    if (sortBy === 'dueDate') {
+      sortOptions.dueDate = sortOrder;
+      sortOptions.dueTime = sortOrder;
+      sortOptions.createdAt = sortOrder;
+    } else {
+      sortOptions[sortBy] = sortOrder;
+      sortOptions.createdAt = sortOrder;
+    }
 
     // Pagination computation
     const pageNumber = Math.max(1, parseInt(page, 10) || 1);
